@@ -1,0 +1,26 @@
+{
+    "name": "nodejs",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node index.js",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d build"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/node": "^18.0.6",
+        "cron": "^3.2.1",
+        "discord.js": "^14.16.3",
+        "express": "^4.21.1",
+        "gh-pages": "^6.2.0",
+        "web-streams-polyfill": "^4.0.0"
+    },
+    "devDependencies": {
+        "node": "^16.20.2"
+    },
+    "description": ""
+}
