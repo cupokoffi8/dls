@@ -7,7 +7,7 @@
         "start": "node index.js",
         "build": "echo 'No build process defined'",
         "predeploy": "npm run build",
-        "deploy": "gh-pages -d build"
+        "deploy": "gh-pages -d static"
     },
     "keywords": [],
     "author": "",
