@@ -5,9 +5,9 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node index.js",
-        "build": "echo 'No build process defined'",
+        "build": "parcel build src/index.html",
         "predeploy": "npm run build",
-        "deploy": "gh-pages -d static"
+        "deploy": "gh-pages -d dist"
     },
     "keywords": [],
     "author": "",
@@ -23,7 +23,8 @@
         "web-streams-polyfill": "^4.0.0"
     },
     "devDependencies": {
-        "node": "^16.20.2"
+        "node": "^16.20.2",
+        "parcel": "^2.13.2"
     },
     "description": ""
 }
