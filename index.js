@@ -1,4 +1,5 @@
 global.ReadableStream = require('web-streams-polyfill').ReadableStream;
+require('dotenv').config();
 const { Client, GatewayIntentBits } = require("discord.js");
 const express = require("express");
 const cron = require("cron");
@@ -10,7 +11,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Your channel ID (replace with the channel where you want the bot to send messages)
-const CHANNEL_ID = "785014089801793539"; // Replace with the channel ID
+const CHANNEL_ID = "785014089801793539";
+const token = process.env.TOKEN;
 
 // Create a new Discord client instance
 const client = new Client({
@@ -22,7 +24,7 @@ const client = new Client({
 });
 
 // Log the bot in
-client.login("MTMxMzM1NzI5NTI3ODg4MjkyOA.G5HRcf.WOR4Sw2gbC8scWP46e2BEjotrOGxKnWuseIrjI");
+client.login(token);
 
 // When the bot is ready, print a message to the console
 client.once("ready", () => {

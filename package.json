@@ -15,6 +15,7 @@
         "@types/node": "^18.0.6",
         "cron": "^3.2.1",
         "discord.js": "^14.16.3",
+        "dotenv": "^16.4.6",
         "express": "^4.21.1",
         "gh-pages": "^6.2.0",
         "web-streams-polyfill": "^4.0.0"
