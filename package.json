@@ -5,12 +5,14 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node index.js",
+        "build": "echo 'No build process defined'",
         "predeploy": "npm run build",
         "deploy": "gh-pages -d build"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
+    "homepage": "https://cupokoffi8.github.io/dls",
     "dependencies": {
         "@types/node": "^18.0.6",
         "cron": "^3.2.1",
