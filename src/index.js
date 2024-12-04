@@ -34,6 +34,16 @@ client.once("ready", () => {
   scheduleDailyMessages();
 });
 
+client.on("messageCreate", (message) => {
+  // Ignore messages from the bot itself
+  if (message.author.bot) return;
+
+  // Check if the message content matches "Can I get a what what?"
+  if (message.content.toLowerCase() === "can i get a what what") {
+    message.channel.send("WHAT WHAT"); // Send "WHAT WHAT" in the same channel
+  }
+});
+
 // Function to send "Good morning" and "Good night" messages
 function sendGoodMorningMessage() {
   const channel = client.channels.cache.get(CHANNEL_ID);
