@@ -23,6 +23,8 @@ const client = new Client({
   ],
 });
 
+let lastRespondedMessageId = null;
+
 // Log the bot in
 client.login(token);
 
@@ -39,8 +41,12 @@ client.on("messageCreate", (message) => {
   if (message.author.bot) return;
 
   // Check if the message content matches "Can I get a what what?"
-  if (message.content.toLowerCase() === "can i get a what what") {
+  if (
+    message.content.toLowerCase() === "can i get a what what?" &&
+    message.id !== lastRespondedMessageId // Ensure it's not already responded to
+  ) {
     message.channel.send("WHAT WHAT"); // Send "WHAT WHAT" in the same channel
+    lastRespondedMessageId = message.id; // Store the ID of the responded message
   }
 });
 
