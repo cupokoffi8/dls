@@ -20,6 +20,7 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers,
   ],
 });
 
@@ -40,13 +41,28 @@ client.on("messageCreate", (message) => {
   // Ignore messages from the bot itself
   if (message.author.bot) return;
 
-  // Check if the message content matches "Can I get a what what?"
+  const content = message.content.toLowerCase();
+
+  // Respond to variations of "Can I get a what what?"
+  if (content.includes("can i get a what what") && message.id !== lastRespondedMessageId) {
+    message.channel.send("WHAT WHAT");
+    lastRespondedMessageId = message.id;
+    return; // Prevent further processing for this message
+  }
+
+  // Respond to variations of "Can I get a hip hip hooray?" or "Can I get a hip-hip hooray?"
   if (
-    message.content.toLowerCase() === "can i get a what what?" &&
-    message.id !== lastRespondedMessageId // Ensure it's not already responded to
+    (content.includes("can i get a hip hip hooray") || content.includes("can i get a hip-hip hooray")) &&
+    message.id !== lastRespondedMessageId
   ) {
-    message.channel.send("WHAT WHAT"); // Send "WHAT WHAT" in the same channel
-    lastRespondedMessageId = message.id; // Store the ID of the responded message
+    message.channel.send("HIP HIP HOORAY");
+    lastRespondedMessageId = message.id;
+    return; // Prevent further processing for this message
+  }
+
+  // Respond if the bot is mentioned and the message contains "hi"
+  if (message.mentions.has(client.user) && content.includes("hi")) {
+    message.reply("Hello! 👋");
   }
 });
 
