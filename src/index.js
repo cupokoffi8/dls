@@ -47,21 +47,21 @@ client.on("messageCreate", (message) => {
   if (content.includes("can i get a what what") && message.id !== lastRespondedMessageId) {
     message.channel.send("WHAT WHAT");
     lastRespondedMessageId = message.id;
-    return; // Prevent further processing for this message
+    return;
   }
 
   // Respond to variations of "Can I get a hip hip hooray?" or "Can I get a hip-hip hooray?"
   if (
-    (content.includes("can i get a hip hip hooray") || content.includes("can i get a hip-hip hooray")) &&
+    (/\bcan i get a hip[-\s]?hip hooray\b/i.test(message.content)) &&
     message.id !== lastRespondedMessageId
   ) {
     message.channel.send("HIP HIP HOORAY");
     lastRespondedMessageId = message.id;
-    return; // Prevent further processing for this message
+    return;
   }
 
   // Respond if the bot is mentioned and the message contains "hi"
-  if (message.mentions.has(client.user) && content.includes("hi")) {
+  if (message.mentions.has(client.user) && /\bhi\b/i.test(content)) {
     message.reply("Hello! 👋");
   }
 });
