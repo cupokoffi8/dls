@@ -20,8 +20,11 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers,
   ],
 });
+
+let lastRespondedMessageId = null;
 
 // Log the bot in
 client.login(token);
@@ -32,6 +35,35 @@ client.once("ready", () => {
 
   // Schedule daily messages using cron
   scheduleDailyMessages();
+});
+
+client.on("messageCreate", (message) => {
+  // Ignore messages from the bot itself
+  if (message.author.bot) return;
+
+  const content = message.content.toLowerCase();
+
+  // Respond to variations of "Can I get a what what?"
+  if (content.includes("can i get a what what") && message.id !== lastRespondedMessageId) {
+    message.channel.send("WHAT WHAT");
+    lastRespondedMessageId = message.id;
+    return;
+  }
+
+  // Respond to variations of "Can I get a hip hip hooray?" or "Can I get a hip-hip hooray?"
+  if (
+    (/\bcan i get a hip[-\s]?hip hooray\b/i.test(message.content)) &&
+    message.id !== lastRespondedMessageId
+  ) {
+    message.channel.send("HIP HIP HOORAY");
+    lastRespondedMessageId = message.id;
+    return;
+  }
+
+  // Respond if the bot is mentioned and the message contains "hi"
+  if (message.mentions.has(client.user) && /\bhi\b/i.test(content)) {
+    message.reply("Hello! 👋");
+  }
 });
 
 // Function to send "Good morning" and "Good night" messages
