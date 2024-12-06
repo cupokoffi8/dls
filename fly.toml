@@ -4,7 +4,8 @@
 #
 
 app = 'dls'
-primary_region = 'ewr'
+[experimental]
+region_pool = ["ewr", "iad"] # Primary (EWR), Secondary (IAD)
 
 [build]
 
