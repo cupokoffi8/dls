@@ -74,21 +74,23 @@ client.on("messageCreate", (message) => {
   if (message.mentions.has(client.user)) {
     const randomResponses = [
       "Who let bro cook?",
-      "Uhhhh who's gonna tell 'em?",
-      "Ok hear me out 🙌",
       "OH FUCK [bleep out and censor fuck]",
-      "Is this satire",
       "Is this satire? 🤔",
       "This is lowkey Bridgerton-coded",
       "ZOINKS SCOOB",
       "Oooo right in the feels",
       "Oooo right in the CHILDHOOD",
-      "Is this 8 minutes yet",
-      "I'm reacting SO hard rn",
+      "My diaper is so full",
       "I am so hard rn",
       "Emotional damage",
       "Do you need a light?",
-      "Virginia! Hanging out I see"
+      "Virginia! Hanging out I see",
+      "Go. you. ✊",
+      "I can't breathe",
+      "Goku likes 2 b naked when he takes a dump?",
+      "Goku’s probably proud of you right now.",
+      "Nice cock",
+      "Ball delivery"
     ];
 
     const randomMessage =
