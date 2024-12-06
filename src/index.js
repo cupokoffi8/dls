@@ -53,8 +53,11 @@ client.on("messageCreate", (message) => {
     return;
   }
 
-  // Respond to "Can I get a hip hip hooray?"
-  if (/\bcan i get a hip[-\s]?hip hooray\b/.test(content) && message.id !== lastRespondedMessageId) {
+  // Respond to "Can I get a hip hip hooray?" (allowing additional words in between)
+  if (
+    /\bcan i .*?hip[-\s]?hip.*?hooray\b/i.test(content) &&
+    message.id !== lastRespondedMessageId
+  ) {
     console.log("Responding to 'Can I get a hip hip hooray'");
     message.channel.send("HIP HIP HOORAY");
     lastRespondedMessageId = message.id;
@@ -64,8 +67,38 @@ client.on("messageCreate", (message) => {
   // Respond if the bot is mentioned and the message contains "hi"
   if (message.mentions.has(client.user) && /\bhi\b/.test(content)) {
     message.reply("Hello! 👋");
+    return;
+  }
+
+  // Respond with a random message if the bot is mentioned
+  if (message.mentions.has(client.user)) {
+    const randomResponses = [
+      "Who let bro cook?",
+      "Uhhhh who's gonna tell 'em?",
+      "Ok hear me out 🙌",
+      "OH FUCK [bleep out and censor fuck]",
+      "Is this satire",
+      "Is this satire? 🤔",
+      "This is lowkey Bridgerton-coded",
+      "ZOINKS SCOOB",
+      "Oooo right in the feels",
+      "Oooo right in the CHILDHOOD",
+      "Is this 8 minutes yet",
+      "I'm reacting SO hard rn",
+      "I am so hard rn",
+      "Emotional damage",
+      "Do you need a light?",
+      "Virginia! Hanging out I see"
+    ];
+
+    const randomMessage =
+      randomResponses[Math.floor(Math.random() * randomResponses.length)];
+    console.log(`Responding with a random message: "${randomMessage}"`);
+    message.reply(randomMessage);
+    return;
   }
 });
+
 
 // Function to send "Good morning" and "Good night" messages
 function sendGoodMorningMessage() {
@@ -107,7 +140,9 @@ function scheduleDailyMessages() {
 
 // Set up an Express route to check if the bot is alive
 app.get("/", (req, res) => {
-  res.send("Bot is running");
+  const now = new Date(); // Get the current date and time
+  const formattedDate = now.toLocaleString(); // Format the date and time
+  res.send(`Bot is running<br>Current date and time: ${formattedDate}`);
 });
 
 // Start the Express server
