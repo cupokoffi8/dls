@@ -41,27 +41,28 @@ client.on("messageCreate", (message) => {
   // Ignore messages from the bot itself
   if (message.author.bot) return;
 
-  const content = message.content.toLowerCase();
+  // Normalize and log the message content
+  const content = message.content.trim().toLowerCase();
+  console.log(`Received message: "${content}" from ${message.author.tag}`);
 
-  // Respond to variations of "Can I get a what what?"
-  if (content.includes("can i get a what what") && message.id !== lastRespondedMessageId) {
+  // Respond to "Can I get a what what?"
+  if (/\bcan i get a what what\b/.test(content) && message.id !== lastRespondedMessageId) {
+    console.log("Responding to 'Can I get a what what'");
     message.channel.send("WHAT WHAT");
     lastRespondedMessageId = message.id;
     return;
   }
 
-  // Respond to variations of "Can I get a hip hip hooray?" or "Can I get a hip-hip hooray?"
-  if (
-    (/\bcan i get a hip[-\s]?hip hooray\b/i.test(message.content)) &&
-    message.id !== lastRespondedMessageId
-  ) {
+  // Respond to "Can I get a hip hip hooray?"
+  if (/\bcan i get a hip[-\s]?hip hooray\b/.test(content) && message.id !== lastRespondedMessageId) {
+    console.log("Responding to 'Can I get a hip hip hooray'");
     message.channel.send("HIP HIP HOORAY");
     lastRespondedMessageId = message.id;
     return;
   }
 
   // Respond if the bot is mentioned and the message contains "hi"
-  if (message.mentions.has(client.user) && /\bhi\b/i.test(content)) {
+  if (message.mentions.has(client.user) && /\bhi\b/.test(content)) {
     message.reply("Hello! 👋");
   }
 });
