@@ -111,7 +111,7 @@ client.on("messageCreate", (message) => {
       "Let's Shit!",
       "You'll never let go of your ass.",
       "I'd Like to Bone Esmeralda!",
-      "I may be an idiot, but I’m an idiot.",
+      "I may be an idiot, but I’m an idiot."
     ];
 
     const randomMessage =
