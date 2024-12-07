@@ -1,5 +1,5 @@
-global.ReadableStream = require('web-streams-polyfill').ReadableStream;
-require('dotenv').config();
+global.ReadableStream = require("web-streams-polyfill").ReadableStream;
+require("dotenv").config();
 const { Client, GatewayIntentBits } = require("discord.js");
 const express = require("express");
 const cron = require("cron");
@@ -24,6 +24,9 @@ const client = new Client({
   ],
 });
 
+// A map to track the last message time for each guild
+const lastMessageTimes = new Map();
+
 let lastRespondedMessageId = null;
 
 // Log the bot in
@@ -35,36 +38,122 @@ client.once("ready", () => {
 
   // Schedule daily messages using cron
   scheduleDailyMessages();
+
+  // Check for silence every minute
+  setInterval(checkForSilence, 60 * 1000);
 });
 
+// Track when the last message was sent in the server
 client.on("messageCreate", (message) => {
   // Ignore messages from the bot itself
   if (message.author.bot) return;
 
-  const content = message.content.toLowerCase();
+  // Update the last message time for the guild
+  lastMessageTimes.set(message.guild.id, Date.now());
 
-  // Respond to variations of "Can I get a what what?"
-  if (content.includes("can i get a what what") && message.id !== lastRespondedMessageId) {
+  // Normalize and log the message content
+  const content = message.content.trim().toLowerCase();
+  console.log(`Received message: "${content}" from ${message.author.tag}`);
+
+  // Respond to "Can I get a what what?"
+  if (/\bcan i get a what what\b/.test(content) && message.id !== lastRespondedMessageId) {
+    console.log("Responding to 'Can I get a what what'");
     message.channel.send("WHAT WHAT");
     lastRespondedMessageId = message.id;
     return;
   }
 
-  // Respond to variations of "Can I get a hip hip hooray?" or "Can I get a hip-hip hooray?"
+  // Respond to "Can I get a hip hip hooray?" (allowing additional words in between)
   if (
-    (/\bcan i get a hip[-\s]?hip hooray\b/i.test(message.content)) &&
+    /\bcan i .*?hip[-\s]?hip.*?hooray\b/i.test(content) &&
     message.id !== lastRespondedMessageId
   ) {
+    console.log("Responding to 'Can I get a hip hip hooray'");
     message.channel.send("HIP HIP HOORAY");
     lastRespondedMessageId = message.id;
     return;
   }
 
   // Respond if the bot is mentioned and the message contains "hi"
-  if (message.mentions.has(client.user) && /\bhi\b/i.test(content)) {
+  if (message.mentions.has(client.user) && /\bhi\b/.test(content)) {
     message.reply("Hello! 👋");
+    return;
+  }
+
+  // Respond with a random message if the bot is mentioned
+  if (message.mentions.has(client.user)) {
+    const randomResponses = [
+      "Who let bro cook?",
+      "OH FUCK [bleep out and censor fuck]",
+      "Is this satire? 🤔",
+      "This is lowkey Bridgerton-coded",
+      "ZOINKS SCOOB",
+      "Oooo right in the feels",
+      "Oooo right in the CHILDHOOD",
+      "My diaper is so full",
+      "I am so hard rn",
+      "Emotional damage",
+      "Do you need a light?",
+      "Virginia! Hanging out I see",
+      "Go. you. ✊",
+      "I can't breathe",
+      "Goku likes 2 b naked when he takes a dump?",
+      "Goku’s probably proud of you right now.",
+      "Nice cock",
+      "Ball delivery",
+      "Obama hammer",
+      "Tickle my nono",
+      "Mah boi, this peace is what all true warriors strive for!",
+      "TOASTERS! Toast toast toast toast!",
+      "I hope she made lotsa spaghetti!",
+      "Snooping as usual I see",
+      "This is a certified hood classic.",
+      "Luigi, look! It's from Bowser! Dear pesky plumbers...",
+      "My name is Jeff.",
+      "My LEG!",
+      "I’m firing my laser! BLAAAAARGH!",
+      "You dare bring light into my lair? YOU MUST DIE! …but first, let me finish my sandwich.",
+      "I see your Schwartz is as big as mine!",
+      "What’s the matter, Nazi Sanders? SHISH?!",
+      "Let's Shit!",
+      "You'll never let go of your ass.",
+      "I'd Like to Bone Esmeralda!",
+      "I may be an idiot, but I’m an idiot.",
+    ];
+
+    const randomMessage =
+      randomResponses[Math.floor(Math.random() * randomResponses.length)];
+    console.log(`Responding with a random message: "${randomMessage}"`);
+    message.reply(randomMessage);
+    return;
   }
 });
+
+// Function to check for silence
+function checkForSilence() {
+  const now = Date.now();
+
+  lastMessageTimes.forEach((lastTime, guildId) => {
+    // If 30 minutes of silence has passed
+    if (now - lastTime >= 30 * 60 * 1000) {
+      const guild = client.guilds.cache.get(guildId);
+      if (guild) {
+        const defaultChannel =
+          guild.systemChannel ||
+          guild.channels.cache.find(
+            (channel) =>
+              channel.isTextBased() &&
+              channel.permissionsFor(guild.members.me).has("SendMessages")
+          );
+        if (defaultChannel) {
+          defaultChannel.send("AWKWARD SILENCE 😬");
+        }
+      }
+      // Update the last message time to prevent repeated messages
+      lastMessageTimes.set(guildId, now);
+    }
+  });
+}
 
 // Function to send "Good morning" and "Good night" messages
 function sendGoodMorningMessage() {
@@ -89,7 +178,7 @@ function scheduleDailyMessages() {
     sendGoodMorningMessage,
     null,
     true,
-    "America/New_York",
+    "America/New_York"
   );
   morningJob.start();
 
@@ -99,14 +188,16 @@ function scheduleDailyMessages() {
     sendGoodNightMessage,
     null,
     true,
-    "America/New_York",
+    "America/New_York"
   );
   nightJob.start();
 }
 
 // Set up an Express route to check if the bot is alive
 app.get("/", (req, res) => {
-  res.send("Bot is running");
+  const now = new Date(); // Get the current date and time
+  const formattedDate = now.toLocaleString(); // Format the date and time
+  res.send(`Bot is running<br>Current date and time: ${formattedDate}`);
 });
 
 // Start the Express server
