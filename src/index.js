@@ -73,60 +73,6 @@ client.on("messageCreate", (message) => {
     lastRespondedMessageId = message.id;
     return;
   }
-
-  // Respond if the bot is mentioned and the message contains "hi"
-  if (message.mentions.has(client.user) && /\bhi\b/.test(content)) {
-    message.reply("Hello! 👋");
-    return;
-  }
-
-  // Respond with a random message if the bot is mentioned
-  if (message.mentions.has(client.user)) {
-    const randomResponses = [
-      "Who let bro cook?",
-      "OH FUCK [bleep out and censor fuck]",
-      "Is this satire? 🤔",
-      "This is lowkey Bridgerton-coded",
-      "ZOINKS SCOOB",
-      "Oooo right in the feels",
-      "Oooo right in the CHILDHOOD",
-      "My diaper is so full",
-      "I am so hard rn",
-      "Emotional damage",
-      "Do you need a light?",
-      "Virginia! Hanging out I see",
-      "Go. you. ✊",
-      "I can't breathe",
-      "Goku likes 2 b naked when he takes a dump?",
-      "Goku’s probably proud of you right now.",
-      "Nice cock",
-      "Ball delivery",
-      "Obama hammer",
-      "Tickle my nono",
-      "Mah boi, this peace is what all true warriors strive for!",
-      "TOASTERS! Toast toast toast toast!",
-      "I hope she made lotsa spaghetti!",
-      "Snooping as usual I see",
-      "This is a certified hood classic.",
-      "Luigi, look! It's from Bowser! Dear pesky plumbers...",
-      "My name is Jeff.",
-      "My LEG!",
-      "I’m firing my laser! BLAAAAARGH!",
-      "You dare bring light into my lair? YOU MUST DIE! …but first, let me finish my sandwich.",
-      "I see your Schwartz is as big as mine!",
-      "What’s the matter, Nazi Sanders? SHISH?!",
-      "Let's Shit!",
-      "You'll never let go of your ass.",
-      "I'd Like to Bone Esmeralda!",
-      "I may be an idiot, but I’m an idiot.",
-    ];
-
-    const randomMessage =
-      randomResponses[Math.floor(Math.random() * randomResponses.length)];
-    console.log(`Responding with a random message: "${randomMessage}"`);
-    message.reply(randomMessage);
-    return;
-  }
 });
 
 // Function to check for silence
@@ -146,8 +92,13 @@ function checkForSilence() {
               channel.permissionsFor(guild.members.me).has("SendMessages")
           );
         if (defaultChannel) {
+          console.log(`Sending "AWKWARD SILENCE" to guild: ${guild.name}`);
           defaultChannel.send("AWKWARD SILENCE 😬");
+        } else {
+          console.log(`No accessible channel found in guild: ${guild.name}`);
         }
+      } else {
+        console.log(`Guild with ID ${guildId} not found.`);
       }
       // Update the last message time to prevent repeated messages
       lastMessageTimes.set(guildId, now);
@@ -159,14 +110,20 @@ function checkForSilence() {
 function sendGoodMorningMessage() {
   const channel = client.channels.cache.get(CHANNEL_ID);
   if (channel) {
+    console.log("Sending 'Good morning' message.");
     channel.send("Good morning sisters ☀️");
+  } else {
+    console.log("Good morning channel not found.");
   }
 }
 
 function sendGoodNightMessage() {
   const channel = client.channels.cache.get(CHANNEL_ID);
   if (channel) {
+    console.log("Sending 'Good night' message.");
     channel.send("Good night sisters 🌙");
+  } else {
+    console.log("Good night channel not found.");
   }
 }
 
@@ -182,7 +139,7 @@ function scheduleDailyMessages() {
   );
   morningJob.start();
 
-  // Schedule "Good Night" at 10:00 PM every day
+  // Schedule "Good Night" at 9:45 PM every day
   const nightJob = new cron.CronJob(
     "45 21 * * *",
     sendGoodNightMessage,
