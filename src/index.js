@@ -74,13 +74,6 @@ client.on("messageCreate", (message) => {
     return;
   }
 
-  // Respond if the bot is mentioned and the message contains "hi"
-  if (message.mentions.has(client.user) && /\bhi\b/.test(content)) {
-    message.reply("Hello! 👋");
-    return;
-  }
-
-  // Respond with a random message if the bot is mentioned
   if (message.mentions.has(client.user)) {
     const randomResponses = [
       "Who let bro cook?",
@@ -118,7 +111,7 @@ client.on("messageCreate", (message) => {
       "Let's Shit!",
       "You'll never let go of your ass.",
       "I'd Like to Bone Esmeralda!",
-      "I may be an idiot, but I’m an idiot.",
+      "I may be an idiot, but I’m an idiot."
     ];
 
     const randomMessage =
@@ -146,8 +139,13 @@ function checkForSilence() {
               channel.permissionsFor(guild.members.me).has("SendMessages")
           );
         if (defaultChannel) {
+          console.log(`Sending "AWKWARD SILENCE" to guild: ${guild.name}`);
           defaultChannel.send("AWKWARD SILENCE 😬");
+        } else {
+          console.log(`No accessible channel found in guild: ${guild.name}`);
         }
+      } else {
+        console.log(`Guild with ID ${guildId} not found.`);
       }
       // Update the last message time to prevent repeated messages
       lastMessageTimes.set(guildId, now);
@@ -159,14 +157,20 @@ function checkForSilence() {
 function sendGoodMorningMessage() {
   const channel = client.channels.cache.get(CHANNEL_ID);
   if (channel) {
+    console.log("Sending 'Good morning' message.");
     channel.send("Good morning sisters ☀️");
+  } else {
+    console.log("Good morning channel not found.");
   }
 }
 
 function sendGoodNightMessage() {
   const channel = client.channels.cache.get(CHANNEL_ID);
   if (channel) {
+    console.log("Sending 'Good night' message.");
     channel.send("Good night sisters 🌙");
+  } else {
+    console.log("Good night channel not found.");
   }
 }
 
@@ -182,7 +186,7 @@ function scheduleDailyMessages() {
   );
   morningJob.start();
 
-  // Schedule "Good Night" at 10:00 PM every day
+  // Schedule "Good Night" at 9:45 PM every day
   const nightJob = new cron.CronJob(
     "45 21 * * *",
     sendGoodNightMessage,
