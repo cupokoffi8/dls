@@ -194,5 +194,5 @@ app.get("/", (req, res) => {
 
 // Start the Express server
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Luigi running on port ${port}`);
 });
