@@ -6,6 +6,7 @@ dotenv.config();
 import { Client, GatewayIntentBits } from "discord.js";
 import express from "express";
 import cron from "cron";
+import readline from "readline";
 import fetch from "cross-fetch";
 global.fetch = fetch;
 import { HfInference } from "@huggingface/inference";
@@ -39,55 +40,64 @@ client.login(token);
 client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}!`);
   scheduleDailyMessages();
+  setupConsoleInput();
 });
 
 // Improved text generation using Zephyr-7b
 async function generateText(prompt, botUser) {
-  const maxRetries = 5;
-  let attempt = 0;
-
-  while (attempt < maxRetries) {
-    try {
-      const response = await hf.textGeneration({
-        model: "HuggingFaceH4/zephyr-7b-beta",
-        inputs: prompt,
-        parameters: { max_new_tokens: 150, temperature: 0.8 },
-      });
-
-      let generatedText = response.generated_text;
-      
-      // Clean the response to extract only Vegeta's output
-      if (generatedText.includes("Vegeta:")) {
-        generatedText = generatedText.split("Vegeta:")[1].trim();
-      } else {
-        generatedText = generatedText.trim();
+    const maxRetries = 5;
+    let attempt = 0;
+  
+    while (attempt < maxRetries) {
+      try {
+        const response = await hf.textGeneration({
+          model: "HuggingFaceH4/zephyr-7b-beta",
+          inputs: prompt,
+          parameters: { max_new_tokens: 150, temperature: 0.8 },
+        });
+  
+        let generatedText = response.generated_text;
+  
+        // Clean the response to extract only Vegeta's output
+        if (generatedText.includes("Vegeta:")) {
+          generatedText = generatedText.split("Vegeta:")[1].trim();
+        } else {
+          generatedText = generatedText.trim();
+        }
+  
+        // Remove anything after 'User says:' to prevent hypothetical user prompts
+        if (generatedText.includes("User says:")) {
+          generatedText = generatedText.split("User says:")[0].trim();
+        }
+  
+        // Remove leading/trailing double quotes
+        generatedText = generatedText.replace(/^"|"$/g, '');
+  
+        if (generatedText) return generatedText;
+        console.warn(`Retry ${attempt + 1}: Invalid response.`);
+        attempt++;
+      } catch (error) {
+        console.error("Error generating text:", error);
+        return "Hmph. I seem unable to process this right now. Even a Prince has his limits!";
       }
-      
-      // Remove anything after 'User says:' to prevent hypothetical user prompts
-      if (generatedText.includes("User says:")) {
-        generatedText = generatedText.split("User says:")[0].trim();
-      }
-
-      if (generatedText) return generatedText;
-      console.warn(`Retry ${attempt + 1}: Invalid response.`);
-      attempt++;
-    } catch (error) {
-      console.error("Error generating text:", error);
-      return "Hmph. I seem unable to process this right now. Even a Prince has his limits!";
     }
-  }
-  return "Tch. I couldn't respond to that. Ask again when you're more coherent!";
-}
+    return "Tch. I couldn't respond to that. Ask again when you're more coherent!";
+}  
 
 // Main bot message handling
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
+  const now = new Date();
+  const formattedDate = now.toLocaleString();
+
   const content = message.content.trim().toLowerCase();
-  console.log(`Received: "${content}" from ${message.author.tag}`);
+  console.log("==================================");
+  console.log(`${formattedDate}\n----\n${message.author.tag}: "${content}"`);
 
   // Responding to mentions
   if (message.mentions.has(client.user)) {
+    console.log("==================================");
     console.log("Generating Vegeta's response...");
     const prompt = `
 You are Vegeta, the Prince of all Saiyans from Dragon Ball Z. You are proud, arrogant, and confident, often referring to yourself as royalty. You disdain weakness but respect strength and determination. You respond in a witty, verbose, and condescending manner, yet aim to be somewhat helpful when asked for advice.
@@ -95,6 +105,7 @@ You are Vegeta, the Prince of all Saiyans from Dragon Ball Z. You are proud, arr
 User says: "${message.content}"
 Vegeta:`;
     const response = await generateText(prompt, client.user);
+    console.log(response);
     message.reply(response);
     return;
   }
@@ -141,7 +152,7 @@ function sendTheMessage() {
   const channel = client.channels.cache.get(CHANNEL_ID);
   if (channel) {
     channel.send(
-      "The Prince of all Saiyans has arrived. What weakling dares summon me today?"
+      "EUH SHIT"
     );
   }
 }
@@ -157,13 +168,35 @@ function scheduleDailyMessages() {
   vegetaJob.start();
 }
 
+// Function to handle console input and send a message as the bot
+function setupConsoleInput() {
+    console.log("\nVegeta: ");
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+  
+    console.log("-------------------------------------------\nType a message to send it as Doctor Vegeta:\n-------------------------------------------");
+  
+    rl.on("line", async (line) => {
+      const channel = client.channels.cache.get(CHANNEL_ID);
+      if (channel) {
+        try {
+          await channel.send(line);
+        } catch (error) {
+          console.error("Failed to send message:", error);
+        }
+      } else {
+        console.error("Channel not found. Make sure CHANNEL_ID is correct.");
+      }
+    });
+  }
+
 // Express route to check bot status
 app.get("/", (req, res) => {
-  const now = new Date();
-  const formattedDate = now.toLocaleString();
   res.send(`Bot is running<br>Current date and time: ${formattedDate}`);
 });
 
 app.listen(port, () => {
-  console.log(`Vegeta Bot is running on port ${port}`);
+  console.log(`\nVegeta Bot is running on port ${port}...`);
 });
