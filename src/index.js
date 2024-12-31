@@ -20,7 +20,10 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Your channel ID (replace with the channel where you want the bot to send messages)
+
+
 const CHANNEL_ID = "785014089801793539";
+//const CHANNEL_ID = "917520474039255100";
 const token = process.env.TOKEN;
 
 // Create a new Discord client instance

@@ -93,11 +93,11 @@ client.on("messageCreate", async (message) => {
 
   const content = message.content.trim().toLowerCase();
   console.log("==================================");
-  console.log(`${formattedDate}\n----\n${message.author.tag}: "${content}"`);
+  console.log(`${formattedDate}\n----\n${message.author.tag}: "${content}"\n`);
 
   // Responding to mentions
   if (message.mentions.has(client.user)) {
-    console.log("==================================");
+    console.log("\n==================================");
     console.log("Generating Vegeta's response...");
     const prompt = `
 You are Vegeta, the Prince of all Saiyans from Dragon Ball Z. You are proud, arrogant, and confident, often referring to yourself as royalty. You disdain weakness but respect strength and determination. You respond in a witty, verbose, and condescending manner, yet aim to be somewhat helpful when asked for advice.
@@ -170,7 +170,6 @@ function scheduleDailyMessages() {
 
 // Function to handle console input and send a message as the bot
 function setupConsoleInput() {
-    console.log("\nVegeta: ");
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
