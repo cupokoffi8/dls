@@ -19,7 +19,7 @@ const app = express();
 const port = process.env.PORT || 8080;
 
 // Channel ID and bot token
-const CHANNEL_ID = "785014089801793539";
+const CHANNEL_ID = "1081731517493018811";
 const token = process.env.USOPP_TOKEN;
 
 // Create a new Discord client instance
