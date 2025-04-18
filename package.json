@@ -6,7 +6,8 @@
     "scripts": {
         "start": "node src/index.js",
         "dev": "nodemon src/index.js",
-        "virv": "nodemon src/vegeta.js"
+        "virv": "nodemon src/vegeta.js",
+        "zed": "nodemon src/zephyr.js"
     },
     "keywords": [],
     "author": "",
@@ -15,14 +16,17 @@
     "dependencies": {
         "@huggingface/inference": "^2.8.1",
         "@types/node": "^18.0.6",
+        "body-parser": "^1.20.3",
         "cron": "^3.2.1",
         "cross-fetch": "^4.0.0",
         "discord.js": "^14.16.3",
         "dotenv": "^16.4.6",
         "express": "^4.21.1",
         "gh-pages": "^6.2.0",
+        "http-server": "^14.1.1",
         "jsdom": "^25.0.1",
-        "node-fetch": "^3.3.2"
+        "node-fetch": "^3.3.2",
+        "vercel": "^39.2.2"
     },
     "devDependencies": {
         "nodemon": "^3.1.9",
