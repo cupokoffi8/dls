@@ -173,7 +173,7 @@ function scheduleDailyMessages() {
 function scheduleReminder() {
   const timeZone = "America/New_York";
 
-  const pingMessage = "<@703362086725746690> hello";
+  const pingMessage = "<@703362086725746690> Bring your floaty to CATBIRD for Yon Rha's lip resting spot";
 
   const pingAt9AM = new cron.CronJob(
     "0 9 29 5 *",
@@ -188,8 +188,8 @@ function scheduleReminder() {
     timeZone
   );
 
-  const pingAt2PM = new cron.CronJob(
-    "0 18 17 5 *",
+  const pingAt5PM = new cron.CronJob(
+    "0 17 29 5 *",
     () => {
       const channel = client.channels.cache.get(CHANNEL_ID);
       if (channel) {
@@ -202,7 +202,7 @@ function scheduleReminder() {
   );
 
   pingAt9AM.start();
-  pingAt2PM.start();
+  pingAt5PM.start();
 }
 
 
