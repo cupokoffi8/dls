@@ -1,4 +1,5 @@
-const { ReadableStream } = require('stream/web');
+//const { ReadableStream } = require('stream/web');
+import { ReadableStream } from 'stream/web';
 
 const stream = new ReadableStream({
   start(controller) {

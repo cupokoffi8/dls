@@ -6,7 +6,8 @@
     "scripts": {
         "start": "node src/index.js",
         "dev": "nodemon src/index.js",
-        "virv": "nodemon src/vegeta.js"
+        "virv": "nodemon src/vegeta.js",
+	"gay": "nodemon src/luigi.js"
     },
     "keywords": [],
     "author": "",

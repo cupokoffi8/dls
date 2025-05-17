@@ -1,5 +1,14 @@
-global.ReadableStream = global.ReadableStream || require('node:stream/web').ReadableStream;
+import { ReadableStream } from 'web-streams-polyfill';
 
+global.ReadableStream = new ReadableStream({
+    start(controller) {
+	controller.enqueue("Hello world");
+    }
+});
+
+/*
+global.ReadableStream = global.ReadableStream || require('node:stream/web').ReadableStream;
+*/
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -7,6 +16,15 @@ import { Client, GatewayIntentBits } from "discord.js";
 import express from "express";
 import cron from "cron";
 import fetch from "cross-fetch";
+
+/*
+global.ReadableStream = require("web-streams-polyfill").ReadableStream;
+require("dotenv").config();
+const { Client, GatewayIntentBits, ChannelType } = require("discord.js");
+const express = require("express");
+const cron = require("cron");
+*/
+
 global.fetch = fetch;
 import { HfInference } from "@huggingface/inference";
 
@@ -47,142 +65,134 @@ client.once("ready", () => {
 });
 
 async function generateText(prompt, botUser) {
-  const maxRetries = 5; // Maximum number of retries
+  const maxRetries = 5;
   let attempt = 0;
 
   while (attempt < maxRetries) {
     try {
       const response = await hf.textGeneration({
-        model: "EleutherAI/gpt-neo-2.7B", // Hugging Face model
+        model: "HuggingFaceH4/zephyr-7b-beta",
         inputs: prompt,
-        parameters: {
-          max_new_tokens: 100,
-          temperature: 0.7,
-        },
+        parameters: { max_new_tokens: 150, temperature: 0.9 },
       });
 
       let generatedText = response.generated_text;
 
-      // Remove the original prompt from the response
-      if (generatedText.startsWith(prompt)) {
-        generatedText = generatedText.replace(prompt, "").trim();
+      // Clean the response to extract only Luigi's output
+      if (generatedText.includes("Luigi:")) {
+        generatedText = generatedText.split("Luigi:")[1].trim();
+      } else {
+        generatedText = generatedText.trim();
       }
 
-      // Remove any bot mention (e.g., @BotName or <@BotID>)
-      const botMentionRegex = new RegExp(`@${botUser.username}|<@!?${botUser.id}>`, "gi");
-      generatedText = generatedText.replace(botMentionRegex, "").trim();
-
-      // Remove any HTML tags (e.g., <br>, <b>, etc.)
-      generatedText = generatedText.replace(/<[^>]*>/g, "").trim();
-
-      // Check if "Luigi" or "User says:" are in the text
-      if (/User says:|Luigi/.test(generatedText)) {
-        // Clean "Luigi says:" and "User says:"
-        generatedText = generatedText
-          .replace(/Luigi says:/gi, "")
-          .replace(/User says:/gi, "")
-          .trim();
-
-        return generatedText;
+      // Remove anything after 'User says:' to prevent hypothetical user prompts
+      if (generatedText.includes("User says:")) {
+        generatedText = generatedText.split("User says:")[0].trim();
       }
 
-      // If no "Luigi" or "User says:", extract text after the last colon
-      const colonIndex = generatedText.lastIndexOf(":");
-      if (colonIndex !== -1 && colonIndex < generatedText.length - 1) {
-        const textAfterColon = generatedText.substring(colonIndex + 1).trim();
-        if (textAfterColon) {
-          return textAfterColon; // Return the cleaned text after the colon
-        }
-      }
-
-      console.warn(`Retry ${attempt + 1}: Response did not meet criteria.`);
+      if (generatedText) return generatedText;
+      console.warn(`Retry ${attempt + 1}: Invalid response.`);
       attempt++;
     } catch (error) {
       console.error("Error generating text:", error);
-      return "Sorry, I couldn't think of a response. Try again later!";
+      return "Mamma mia! I-a can't process-a this right now... Maybe it's the spaghetti... or my, uh, diaper!";
     }
   }
-
-  // Fallback response if all retries fail
-  return "Mamma mia! I couldn't come up with something. Try again later!";
+  return "Oh, no... I-a couldn't-a respond! Try-a again! Wahoo!";
 }
 
+// Main bot message handling
 client.on("messageCreate", async (message) => {
-  // Ignore messages from the bot itself
   if (message.author.bot) return;
 
-  // Normalize and log the message content
   const content = message.content.trim().toLowerCase();
-  console.log(`Received message: "${content}" from ${message.author.tag}`);
+  console.log(`Received: "${content}" from ${message.author.tag}`);
 
-  // If the bot is mentioned, use GPT-J to respond
+  // Responding to mentions
   if (message.mentions.has(client.user)) {
-    console.log("Generating response with GPT-J");
+    console.log("Generating Luigi's response...");
+    const prompt = `
+You are Luigi, Mario's brother from Super Mario Bros. You are cheerful, a bit vulgar, have a dark sense of humor, and often speak with an exaggerated Italian accent. You sometimes mention your full diaper, but you always try to be a jokester, especially in awkward situations. Respond in a fun and edgy way, using phrases like "Mamma mia!", "Wahoo!", and "Let's-a go!" mixed in with some edgy humor like "Black Lives Don't matter!".
 
-    // Define the prompt to simulate Luigi's voice
-    const prompt = `You are Luigi from Super Mario Bros. Respond in Luigi's cheerful, Italian-accented voice. User says: "${message.content}"`;
-
-    // Generate the response from the Hugging Face API
-    const response = await generateText(prompt, client.user); // Pass bot's user object
-
-    // Send only the cleaned response as a reply to the user
+User says: "${message.content}"
+Luigi:`;
+    const response = await generateText(prompt, client.user);
     message.reply(response);
     return;
   }
 
-// Existing logic for specific phrases
-  if (/\bcan i get a what what\b/.test(content) && message.id !== lastRespondedMessageId) {
-    console.log("Responding to 'Can I get a what what'");
-    message.channel.send("WHAT WHAT");
-    lastRespondedMessageId = message.id;
+  // Predefined Luigi responses for specific triggers
+  if (/mario/.test(content)) {
+    message.channel.send(
+      "M-Mario? Oh boy, he's-a always the hero... But Luigi's-a here too! Let's-a go!"
+    );
     return;
   }
 
-  if (
-    /\bcan i .*?hip[-\s]?hip.*?hooray\b/i.test(content) &&
-    message.id !== lastRespondedMessageId
-  ) {
-    console.log("Responding to 'Can I get a hip hip hooray'");
-    message.channel.send("HIP HIP HOORAY");
-    lastRespondedMessageId = message.id;
+  if (/diaper/.test(content)) {
+    message.channel.send(
+      "Uh-oh... Mamma mia, my diaper's-a feeling a little... full. Maybe I shouldn't have eaten all that pasta!"
+    );
+    return;
+  }
+
+  if (/jump/.test(content)) {
+    message.channel.send(
+      "Wahoo! I-a love jumping... But, uh, not too high! I get-a dizzy!"
+    );
+    return;
+  }
+
+  if (/power-up/.test(content)) {
+    message.channel.send(
+      "Power-up? Oh, yes! Give-a me that Fire Flower! Or, uh, maybe just a snack. Heh... Heh..."
+    );
+    return;
+  }
+
+  if (/princess peach/.test(content)) {
+    message.channel.send(
+      "P-Princess Peach? Oh, uh, she’s-a so nice... I-I-a hope she notices me this time! Heh..."
+    );
     return;
   }
 });
 
-// Function to send "Good morning" and "Good night" messages
 function sendGoodMorningMessage() {
-  const channel = client.channels.cache.get(CHANNEL_ID);
-  if (channel) {
-    channel.send("Good morning sisters ☀️");
+    const channel = client.channels.cache.get(CHANNEL_ID);
+    if (channel) {
+      channel.send("Good morning sisters ☀️");
+    }
   }
-}
-
+  
 function sendGoodNightMessage() {
-  const channel = client.channels.cache.get(CHANNEL_ID);
-  if (channel) {
-    channel.send("Good night sisters 🌙");
+    const channel = client.channels.cache.get(CHANNEL_ID);
+    if (channel) {
+      channel.send("Good night sisters 🌙");
+    }
   }
-}
-
-// Schedule Good Morning at 8:05 AM every day
-function scheduleDailyMessages() {
-  const morningJob = new cron.CronJob(
-    "5 8 * * *",
-    sendGoodMorningMessage,
-    null,
-    true,
-    "America/New_York"
-  );
-  morningJob.start();
-
-  const nightJob = new cron.CronJob(
-    "45 21 * * *",
-    sendGoodNightMessage,
-    null,
-    true,
-    "America/New_York"
-  );
-  nightJob.start();
+  
+  // Schedule Good Morning at 8:05 AM every day
+  function scheduleDailyMessages() {
+    // Schedule "Good Morning" at 8:05 AM
+    const morningJob = new cron.CronJob(
+      "5 8 * * *",
+      sendGoodMorningMessage,
+      null,
+      true,
+      "America/New_York",
+    );
+    morningJob.start();
+  
+    // Schedule "Good Night" at 10:00 PM every day
+    const nightJob = new cron.CronJob(
+      "45 21 * * *",
+      sendGoodNightMessage,
+      null,
+      true,
+      "America/New_York",
+    );
+    nightJob.start();
 }
 
 // Set up an Express route to check if the bot is alive
